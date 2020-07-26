@@ -12,6 +12,7 @@ client.connect().then((database = client.db("Twitter")));
 const express = require("express");
 const app = express();
 var createAccount = require("./User/createAccount");
+var logIn = require("./User/LogIn");
 const cors = require("cors");
 app.use(cors());
 
@@ -31,6 +32,11 @@ app.post("/createAccount", async (req, res) =>  {
   res.json({ message: status });
 });
 
+app.post('/logIn', async (req,res) => {
+    var status = await logIn.logIn(req);
+    res.json({ message : status});
+
+});
 
 
 app.listen(8080, () => {
