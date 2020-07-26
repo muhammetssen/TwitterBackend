@@ -13,12 +13,9 @@ async function isValid(req) {
     .toArray();
 
 	if (response.length != 0) {
-		console.log(User);
     if (response[0].username == User.username) {
-      console.log(1);
       return "Username has already been taken";
     } else {
-      console.log(2);
       return "Email has already taken.";
     }
   }
