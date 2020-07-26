@@ -1,0 +1,27 @@
+{
+  "name": "twitterbackend",
+  "version": "1.0.0",
+  "description": "Backend for Flutter Twitter clone ",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muhammetssen/TwitterBackend.git"
+  },
+  "author": "Muhammet Sen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/muhammetssen/TwitterBackend/issues"
+  },
+  "homepage": "https://github.com/muhammetssen/TwitterBackend#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
