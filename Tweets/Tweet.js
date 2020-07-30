@@ -93,6 +93,8 @@ async function createTweet(text, userId, sentTime) {
     likedUsers: [],
     retweetCount: 0,
     retweetedUsers: [],
+    replies : [],
+    replyCount : 0,
   };
   var tweetCollection = mainApp.database.collection("Tweets");
   await tweetCollection.insertOne(newTweet);
@@ -131,7 +133,7 @@ async function getAllTweets() {
   const mainApp = require("../index");
   var tweetCollection = mainApp.database.collection("Tweets");
   var tweet = await tweetCollection.find({}).toArray();
-  console.log(tweet.length);
+  // console.log(tweet.length);
   return tweet
   
 }
