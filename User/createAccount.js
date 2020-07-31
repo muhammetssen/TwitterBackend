@@ -7,6 +7,7 @@ async function isValid(req) {
     dateOfBirth: req.body.dateOfBirth,
     username: req.body.username,
     password: req.body.password,
+    profilePhoto : "",
   };
   response = await collection
     .find({ $or: [{ username: User.username }, { email: User.email }] })
@@ -14,14 +15,14 @@ async function isValid(req) {
 
 	if (response.length != 0) {
     if (response[0].username == User.username) {
-      return "Username has already been taken";
+      return {message:"Username has already been taken"};
     } else {
-      return "Email has already taken.";
+      return {message:"Email has already taken."};
     }
   }
   // console.log(`${User.username} is valid`);
-  collection.insertOne(User);
-  return "Success";
+  var response = await collection.insertOne(User);
+  return {message:'Success',_id:response.insertedId};
 }
 module.exports = {
   createUser: isValid,

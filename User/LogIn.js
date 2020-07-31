@@ -16,8 +16,9 @@ async function logIn(req) {
 		}
 		if(response[0].password != credentials.password){
 			return "Invalid password.";
-		}
-		return 'Success';
+    }
+    console.log(response[0]._id);
+		return {message:'Success',_id:response[0]._id};
 }
 
 module.exports = {

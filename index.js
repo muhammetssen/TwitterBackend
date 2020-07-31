@@ -13,8 +13,13 @@ const app = express();
 var createAccount = require("./User/createAccount");
 var logIn = require("./User/LogIn");
 var tweets = require("./Tweets/Tweet");
+var uploadImage = require("./Image/uploadImage");
+var bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+var editProfile = require("./User/editProfile");
 const cors = require("cors");
 app.use(cors());
+app.use(express.static('public'))
 
 app.use(express.json());
 app.get("/", (req, res) => {
@@ -29,22 +34,31 @@ app.post("/mews", (req, res) => {
 
 app.post("/createAccount", async (req, res) => {
   var status = await createAccount.createUser(req);
-  res.json({ message: status });
+  res.json(status);
 });
 
 app.post("/logIn", async (req, res) => {
   var status = await logIn.logIn(req);
-  res.json({ message: status });
+  res.json( status);
 });
 
 app.post("/rttweet", async (req, res) => {
-  tweets.retweet("5f1f263b9c62444d844a109b", "5f1f079ee2320d1804ed3b87");
+  tweets.retweet(req.body.tweetId,req.body.userId );
+
   res.json({});
 });
 
 app.post("/liketweet", async (req, res) => {
-  tweets.like("5f1f263b9c62444d844a109b", "5f1f0791e2320d2704ed3b87");
+  tweets.like(req.body.tweetId,req.body.userId );
   res.json({});
+});
+
+app.post("/setProfilePhoto", async (req, res) =>{
+  var imagePath = await uploadImage.uploadImage(req.body);
+  var host = req.get('host');
+  editProfile.setProfilePhoto(req.body.userId,imagePath,host);
+
+  res.send(200);
 });
 
 app.post("/getRTCount", async (req, res) => {
@@ -67,7 +81,7 @@ app.post("/getAllTweets", async (req, res) => {
 });
 
 app.post("/createTweet", (req, res) => {
-  tweets.createTweet("First Tweet", "5f1f07a0e3320d2804ed3b88", "today");
+  tweets.createTweet(req.body.full_text, req.body._id);
   res.json({});
 });
 
