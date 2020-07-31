@@ -1,4 +1,5 @@
 const { text } = require("express");
+const { Timestamp } = require("mongodb");
 
 const objectId = require("mongodb").ObjectID;
 class Tweet {
@@ -24,6 +25,7 @@ async function retweet(tweetId, userId) {
   var retweetedTweet = await tweetCollection.findOne({
     _id: objectId(tweetId),
   });
+  console.log(retweetedTweet);
   // var retweetedUser = await userCollection.findOne({ _id: objectId(userId) });
 
   var retweetedUsers = retweetedTweet["retweetedUsers"];
@@ -83,20 +85,23 @@ async function like(tweetId, userId) {
   );
 }
 
-async function createTweet(text, userId, sentTime) {
+async function createTweet(text, userId) {
   const mainApp = require("../index");
+  var date = new Date();
+
   var newTweet = {
     text: text,
     userId: objectId(userId),
-    sentTime: sentTime,
+    sentTime: `${date.getHours()}:${date.getMinutes()} ${date.getDay()}/${date.getMonth()}/${date.getFullYear()}`,
     likeCount: 0,
     likedUsers: [],
     retweetCount: 0,
     retweetedUsers: [],
-    replies : [],
-    replyCount : 0,
+    replies: [],
+    replyCount: 0,
   };
   var tweetCollection = mainApp.database.collection("Tweets");
+
   await tweetCollection.insertOne(newTweet);
 }
 
@@ -132,10 +137,26 @@ async function getTweet(tweetId) {
 async function getAllTweets() {
   const mainApp = require("../index");
   var tweetCollection = mainApp.database.collection("Tweets");
-  var tweet = await tweetCollection.find({}).toArray();
+  var tweets = [];
+  var response = await tweetCollection.find({}).toArray();
+  for (tweet of response) {
+    var User = await mainApp.database
+      .collection("Users")
+      .findOne(
+        { _id: objectId(tweet["userId"]) },
+        { name: 1, username: 1, profilePhoto: 1 }
+      );
+    // console.log({'username':User.username,'name':User.name,'profilePhoto':User.profilePhoto});
+    tweet["User"] = {
+      username: User.username,
+      name: User.name,
+      profilePhoto: User.profilePhoto,
+    };
+    tweets.push(tweet);
+  }
+
   // console.log(tweet.length);
-  return tweet
-  
+  return tweets.reverse();
 }
 
 module.exports = {
