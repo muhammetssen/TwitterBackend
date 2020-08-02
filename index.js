@@ -54,11 +54,12 @@ app.post("/liketweet", async (req, res) => {
 });
 
 app.post("/setProfilePhoto", async (req, res) =>{
-  var imagePath = await uploadImage.uploadImage(req.body);
+  var path = 'cache/images/profilePhotos';
+  var fileName = await uploadImage.uploadImage(req.body.userId,req.body.image,path);
   var host = req.get('host');
-  editProfile.setProfilePhoto(req.body.userId,imagePath,host);
+  editProfile.setProfilePhoto(req.body.userId,fileName,host);
 
-  res.send(200);
+  // res.send(200);
 });
 
 app.post("/getRTCount", async (req, res) => {
@@ -71,12 +72,12 @@ app.post("/getLikedCount", async (req, res) => {
   res.json({ message: response });
 });
 app.post("/getTweet", async (req, res) => {
-  var response = await tweets.getTweet(req.body.tweetId);
-  res.json({ message: response });
+  var response = await tweets.getTweet(req.body.tweetId,req.body.userId);
+  res.json({ tweet: response });
 });
 
 app.post("/getAllTweets", async (req, res) => {
-  var response = await tweets.getAllTweets();
+  var response = await tweets.getAllTweets(req.body.userId);
   res.json({ message: response });
 });
 
