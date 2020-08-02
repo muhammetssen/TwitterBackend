@@ -4,7 +4,8 @@ const { Timestamp } = require("mongodb");
 const objectId = require("mongodb").ObjectID;
 class Tweet {
   constructor(text, senderUser, sentTime) {
-    (this.text = text), (this.senderUser = senderUser);
+    this.text = text, 
+    this.senderUser = senderUser;
     this.sentTime = sentTime;
     this.likeCount = 0;
     this.likedUsers = [];
@@ -12,10 +13,6 @@ class Tweet {
     this.retweetedUsers = [];
   }
 
-  like(userId) {
-    this.likeCount += 1;
-    this.likedUsers.push(userId);
-  }
 }
 
 async function retweet(tweetId, userId) {
@@ -25,20 +22,11 @@ async function retweet(tweetId, userId) {
   var retweetedTweet = await tweetCollection.findOne({
     _id: objectId(tweetId),
   });
-  console.log(retweetedTweet);
-  // var retweetedUser = await userCollection.findOne({ _id: objectId(userId) });
-
   var retweetedUsers = retweetedTweet["retweetedUsers"];
-
-  var retweetedUser = objectId(userId);
-
-  for (let i = 0; i < retweetedUsers.length; i++) {
-    const element = retweetedUsers[i];
-    if (element.equals(retweetedUser)) {
-      return;
-    }
+  if(retweetedUsers.indexOf(userId) != -1) {
+    retweetedUsers = retweetedUsers.filter(function(value, index, arr) {return value != userId});
   }
-  retweetedUsers.push(retweetedUser);
+  else retweetedUsers.push(userId);
   var newvalues = {
     $set: {
       retweetedUsers: retweetedUsers,
@@ -62,17 +50,12 @@ async function like(tweetId, userId) {
 
   var likedUsers = likedTweet["likedUsers"];
 
-  var likedUser = objectId(userId);
-
-  console.log(likedUsers);
-  for (let i = 0; i < likedUsers.length; i++) {
-    const element = likedUsers[i];
-    if (element.equals(likedUser)) {
-      return;
-    }
-    // console.log('asdad');
+  if(likedUsers.indexOf(userId) != -1) {
+    likedUsers = likedUsers.filter(function(value, index, arr) {return value != userId});
+    console.log("removed");
   }
-  likedUsers.push(likedUser);
+  else likedUsers.push(userId);
+ 
   var newvalues = {
     $set: { likedUsers: likedUsers, likeCount: likedUsers.length },
   };
@@ -89,6 +72,7 @@ async function createTweet(text, userId) {
   const mainApp = require("../index");
   var date = new Date();
 
+  if(text.length ==0) return;
   var newTweet = {
     text: text,
     userId: objectId(userId),
@@ -125,16 +109,32 @@ async function getLikedCount(tweetId) {
   return likedTweet["likeCount"];
 }
 
-async function getTweet(tweetId) {
+async function getTweet(tweetId,userId) {
   const mainApp = require("../index");
   var tweetCollection = mainApp.database.collection("Tweets");
   var tweet = await tweetCollection.findOne({
     _id: objectId(tweetId),
   });
+  var User = await mainApp.database
+      .collection("Users")
+      .findOne(
+        { _id: objectId(tweet["userId"]) },
+        { name: 1, username: 1, profilePhoto: 1 }
+      );
+    // console.log({'username':User.username,'name':User.name,'profilePhoto':User.profilePhoto});
+    tweet["User"] = {
+      username: User.username,
+      name: User.name,
+      profilePhoto: User.profilePhoto,
+    };
+   
+    tweet['hasLiked'] = tweet.likedUsers.indexOf(userId) == -1 ? false :true;
+    tweet['hasRetweeted'] = tweet.retweetedUsers.indexOf(userId) == -1 ? false :true;
+    // TODO return responses
   return tweet;
 }
 
-async function getAllTweets() {
+async function getAllTweets(userId) {
   const mainApp = require("../index");
   var tweetCollection = mainApp.database.collection("Tweets");
   var tweets = [];
@@ -152,6 +152,9 @@ async function getAllTweets() {
       name: User.name,
       profilePhoto: User.profilePhoto,
     };
+   
+    tweet['hasLiked'] = tweet.likedUsers.indexOf(userId) == -1 ? false :true;
+    tweet['hasRetweeted'] = tweet.retweetedUsers.indexOf(userId) == -1 ? false :true;
     tweets.push(tweet);
   }
 
