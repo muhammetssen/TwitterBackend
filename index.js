@@ -17,6 +17,7 @@ var uploadImage = require("./Image/uploadImage");
 var bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 var editProfile = require("./User/editProfile");
+var userMethods = require("./User/UserMethods");
 const cors = require("cors");
 app.use(cors());
 app.use(express.static('public'))
@@ -58,7 +59,7 @@ app.post("/setProfilePhoto", async (req, res) =>{
   var fileName = await uploadImage.uploadImage(req.body.userId,req.body.image,path);
   var host = req.get('host');
   editProfile.setProfilePhoto(req.body.userId,fileName,host);
-
+  res.json();
   // res.send(200);
 });
 
@@ -85,7 +86,11 @@ app.post("/createTweet", (req, res) => {
   tweets.createTweet(req.body.full_text, req.body._id);
   res.json({});
 });
+app.post('/getUser', async (req, res) => {
+  var response = await userMethods.getUser(req.body.userId);
+  res.json(response);
 
+});
 app.listen(8080, () => {
   console.log("Listening on 8080");
 });
