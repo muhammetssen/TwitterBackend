@@ -12,10 +12,10 @@ async function logIn(req) {
     })
 		.toArray();
 		if(response.length == 0){
-			return "User not found.";
+			return {message:"User not found."};
 		}
 		if(response[0].password != credentials.password){
-			return "Invalid password.";
+			return {message:"Invalid password."};
     }
     console.log(response[0]._id);
 		return {message:'Success',_id:response[0]._id};
