@@ -7,7 +7,10 @@ async function setProfilePhoto(userId,imagePath,host) {
     // console.log(host+'/'+imagePath);
     // console.log(collection.findOne({}));
    
-    collection.updateOne({_id:objectId(userId)},{$set :{profilePhoto:'http://'+host+'/'+imagePath}},(err, res) => {
+    collection.updateOne(
+        {_id:objectId(userId)}
+        ,{$set :{profilePhoto:'http://'+host+'/'+imagePath}}
+        ,(err, res) => {
         if (err) console.log(err);
     });
 
