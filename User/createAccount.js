@@ -8,6 +8,15 @@ async function isValid(req) {
     username: req.body.username,
     password: req.body.password,
     profilePhoto : "",
+    followingCount:0,
+    followerCount:0,
+    followers:[],
+    following:[],
+    tweets:[],
+    replies:[],
+    likes:[],
+    media:[],
+
   };
   response = await collection
     .find({ $or: [{ username: User.username }, { email: User.email }] })
