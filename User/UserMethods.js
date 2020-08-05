@@ -1,6 +1,7 @@
 const objectId = require("mongodb").ObjectID;
 
 async function getUser(userId){
+    console.log(`Wanted ID ${userId}`);
     const mainApp = require("../index");
     var collection = mainApp.database.collection('Users');
 
