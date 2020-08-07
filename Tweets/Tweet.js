@@ -288,6 +288,51 @@ async function getTweetsOfUser(wantedUserId, senderUserId) {
   console.log("out");
   return { message: "Success", data: wantedTweets.reverse() };
 }
+
+async function getLikesOfUser(wantedUserId, senderUserId) {
+  const mainApp = require("../index");
+  var tweetCollection = mainApp.database.collection("Tweets");
+  var userCollection = mainApp.database.collection("Users");
+  var wantedUser = await userCollection.findOne({
+    _id: objectId(wantedUserId),
+  });
+  console.log("inner");
+  var wantedTweets = await tweetCollection
+    .find({ _id: { $in: wantedUser.likes } })
+    .toArray();
+  for (tweet of wantedTweets) {
+    if (tweet.userId.toString() !== wantedUserId) {
+      var ownerOfTweetUser = await mainApp.database
+        .collection("Users")
+        .findOne(
+          { _id: tweet.userId },
+          { projection: { name: 1, username: 1, profilePhoto: 1, _id: 1 } }
+        );
+      tweet["User"] = ownerOfTweetUser;
+    } else {
+      tweet["User"] = {
+        name: wantedUser.name,
+        profilePhoto: wantedUser.profilePhoto,
+        username: wantedUser.username,
+        _id: wantedUser._id,
+      };
+    }
+    tweet["hasLiked"] = tweet.likedUsers.some(
+      (userObjectId) => userObjectId.toString() === senderUserId
+    )
+      ? true
+      : false;
+    tweet["hasRetweeted"] = tweet.retweetedUsers.some(
+      (userObjectId) => userObjectId.toString() === senderUserId
+    )
+      ? true
+      : false;
+  }
+
+  // console.log(wantedTweets);
+  console.log("out");
+  return { message: "Success", data: wantedTweets.reverse() };
+}
 module.exports = {
   createTweet: createTweet,
   Tweet: Tweet,
@@ -298,4 +343,5 @@ module.exports = {
   getTweet: getTweet,
   getAllTweets: getAllTweets,
   getTweetsOfUser: getTweetsOfUser,
+  getLikesOfUser: getLikesOfUser,
 };

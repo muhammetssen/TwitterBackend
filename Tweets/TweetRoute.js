@@ -41,6 +41,14 @@ router.post("/getTweetsOfUser", async (req, res) => {
     req.body.senderUserId
   );
   res.json( response );
+});
+
+router.post("/getLikesOfUser", async (req, res) => {
+    var response =  await tweets.getTweetsOfUser(
+      req.body.wantedUserId,
+      req.body.senderUserId
+    );
+    res.json( response );
 
 });
 router.post("/getAllTweets", async (req, res) => {
